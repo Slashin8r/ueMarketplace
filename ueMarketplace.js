@@ -42,7 +42,7 @@ async function ueMarketplace()
           }
           ueMarketplaceAsset[priceArray[key]] = newArray;
         }
-        var assetRemoveKeys = JSON.parse('{"id":"' + ueMarketplaceAsset.id + '"}');
+        var assetRemoveKeys = JSON.parse('{"id":"'+ueMarketplaceAsset.id+'"}');
         for (var key = 0; key < removeKeys.length; key++) {
           if (ueMarketplaceAsset.hasOwnProperty(removeKeys[key])) {
             assetRemoveKeys[removeKeys[key]] = ueMarketplaceAsset[removeKeys[key]];
@@ -57,11 +57,11 @@ async function ueMarketplace()
       }
     }
   }
-  fs.writeFile('allAssets.json', JSON.stringify(allAssetsJSON), function (err) {
+  fs.writeFile('allAssets.json', JSON.stringify(allAssetsJSON, null, 4), function (err) {
     if (err) return console.log(err);
     console.log('Saved allAssets.json');
   });
-  fs.writeFile('allAssetsRemovedKeys.json', JSON.stringify(allAssetsRemovedKeysJSON), function (err) {
+  fs.writeFile('allAssetsRemovedKeys.json', JSON.stringify(allAssetsRemovedKeysJSON, null, 4), function (err) {
     if (err) return console.log(err);
     console.log('Saved allAssetsRemovedKeys.json');
   });
