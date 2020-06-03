@@ -1,15 +1,20 @@
-function ueMarketplace()
+const fs = require('fs');
+const bent = require('bent');
+const getJSON = bent('json');
+
+async function ueMarketplace()
 {
   var priceArray = ["priceValue","discountPriceValue","discountPercentage","price","discount","discountPrice"];
   var removeKeys = ["keyImages","featured","thumbnail","learnThumbnail","headerImage","technicalDetails","longDescription"];
-  var allAssetsJSON = $.ajax({async:false,global:false,url:"allAssets.json",dataType:"json",success:function (data) { return data; }}).responseJSON;
-  var allAssetsRemovedKeysJSON = $.ajax({async:false,global:false,url:"allAssetsRemovedKeys.json",dataType:"json",success:function (data) { return data; }}).responseJSON;
-  var totalAssetsJSON = $.ajax({async:false,global:false,url:"https://www.unrealengine.com/marketplace/api/assets?start=0&count=1",dataType:"json",success:function (data) { return data; }}).responseJSON;
+  var allAssetsJSON = JSON.parse(fs.readFileSync('allAssets.json'));
+  var allAssetsRemovedKeysJSON = JSON.parse(fs.readFileSync('allAssetsRemovedKeys.json'));
+  var totalAssetsJSON = await getJSON('https://www.unrealengine.com/marketplace/api/assets?start=0&count=1');
   var totalAssets = totalAssetsJSON.data.paging.total;
+  console.log(totalAssets);
   
   for (var start = 0; start < totalAssets; start += 100) {
     console.log(start);
-    var ueMarketplaceJSON = $.ajax({async:false,global:false,url:"https://www.unrealengine.com/marketplace/api/assets?start="+start+"&count=100&sortDir=ASC",dataType:"json",success:function (data) { return data; }}).responseJSON;
+	var ueMarketplaceJSON = await getJSON('https://www.unrealengine.com/marketplace/api/assets?start='+start+'&count=100&sortDir=ASC');
     for (var i = 0; i < 100; i++) {
       if (start + i >= totalAssets) {
         break;
@@ -52,8 +57,6 @@ function ueMarketplace()
       }
     }
   }
-  //console.log(JSON.stringify(allAssetsRemovedKeysJSON));
-  const fs = require('fs');
   fs.writeFile('allAssets.json', JSON.stringify(allAssetsJSON), function (err) {
     if (err) return console.log(err);
     console.log('Saved allAssets.json');
@@ -70,9 +73,10 @@ function findAssetByID(assets, id, index) {
   }
   for (var i = index; i < assets.length; i++){
     if (assets[i].id == id){
-        console.log(i);
       return i;
     }
   }
   return -1;
 }
+
+ueMarketplace()
