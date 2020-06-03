@@ -10,10 +10,10 @@ async function ueMarketplace()
   var allAssetsRemovedKeysJSON = JSON.parse(fs.readFileSync('allAssetsRemovedKeys.json'));
   var totalAssetsJSON = await getJSON('https://www.unrealengine.com/marketplace/api/assets?start=0&count=1');
   var totalAssets = totalAssetsJSON.data.paging.total;
-  console.log(totalAssets);
+  console.log('Total assets to scan: '+totalAssets);
   
   for (var start = 0; start < totalAssets; start += 100) {
-    console.log(start);
+    console.log('Scanning assets: '+start+' through '+(start+99));
 	var ueMarketplaceJSON = await getJSON('https://www.unrealengine.com/marketplace/api/assets?start='+start+'&count=100&sortDir=ASC');
     for (var i = 0; i < 100; i++) {
       if (start + i >= totalAssets) {
@@ -57,6 +57,7 @@ async function ueMarketplace()
       }
     }
   }
+  console.log('Total assets: '+allAssetsJSON.total);
   fs.writeFile('allAssets.json', JSON.stringify(allAssetsJSON, null, 4), function (err) {
     if (err) return console.log(err);
     console.log('Saved allAssets.json');
