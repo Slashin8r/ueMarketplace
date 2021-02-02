@@ -1,4 +1,7 @@
 <?php
+$dbname = 'ueMarketplace';
+$dbuser = 'ueMarketplace';
+$dbpass = 'F5mj?kDZUoJm';
 $con = mysqli_connect('localhost',$dbuser,$dbpass,$dbname);
 if (mysqli_connect_errno()) {
     printf("Connect failed: %s\n", mysqli_connect_error());
@@ -61,41 +64,49 @@ for ($start = $assetStart; $start <= $totalAssets; $start += 100) {
                     $assetupdate .= ',' . $key . ' = ' . json_encode($val, JSON_UNESCAPED_UNICODE);
                     break;
                 case 'categories':
-                    $assetkeysinsert .= ',categoryPath,categoryName';
-                    $assetvaluesinsert .= ',"' . $val[0]['path'] . '","' . $val[0]['name'] . '"';
-                    $assetupdate .= ',categoryPath = "' . $val[0]['path'] . '",categoryName = "' . $val[0]['name'] . '"';
+                    if (array_key_exists(0, $val)) {
+                        $assetkeysinsert .= ',categoryPath,categoryName';
+                        $assetvaluesinsert .= ',"' . $val[0]['path'] . '","' . $val[0]['name'] . '"';
+                        $assetupdate .= ',categoryPath = "' . $val[0]['path'] . '",categoryName = "' . $val[0]['name'] . '"';
+                    }
                     break;
                 case 'releaseInfo':
-                    $assetkeysinsert .= ',platforms';
-                    $tempstring = '';
-                    foreach($val[count($val) - 1]['platform'] as $k => $v) {
-                        $tempstring .= ',' . $v;
+                    if (count($val) > 0) {
+                        $assetkeysinsert .= ',platforms';
+                        $tempstring = '';
+                        foreach($val[count($val) - 1]['platform'] as $k => $v) {
+                            $tempstring .= ',' . $v;
+                        }
+                        $tempstring = substr($tempstring, 1);
+                        $assetvaluesinsert .= ',"' . $tempstring . '"';
+                        $assetupdate .= ',platforms = "' . $tempstring . '"';
                     }
-                    $tempstring = substr($tempstring, 1);
-                    $assetvaluesinsert .= ',"' . $tempstring . '"';
-                    $assetupdate .= ',platforms = "' . $tempstring . '"';
                     break;
                 case 'compatibleApps':
-                    $assetkeysinsert .= ',compatibleApps';
-                    $tempstring = '';
-                    foreach($val as $k => $v) {
-                        $tempstring .= ',' . $v;
-                    }
-                    $tempstring = substr($tempstring, 1);
-                    $assetvaluesinsert .= ',"' . $tempstring . '"';
-                    $assetupdate .= ',compatibleApps = "' . $tempstring . '"';
-                    break;
-                case 'tags':
-                    $assetkeysinsert .= ',tags';
-                    $tempstring = '';
-                    if ($val != "") {
+                    if (count($val) > 0) {
+                        $assetkeysinsert .= ',compatibleApps';
+                        $tempstring = '';
                         foreach($val as $k => $v) {
                             $tempstring .= ',' . $v;
                         }
                         $tempstring = substr($tempstring, 1);
+                        $assetvaluesinsert .= ',"' . $tempstring . '"';
+                        $assetupdate .= ',compatibleApps = "' . $tempstring . '"';
                     }
-                    $assetvaluesinsert .= ',"' . $tempstring . '"';
-                    $assetupdate .= ',tags = "' . $tempstring . '"';
+                    break;
+                case 'tags':
+                    if (count($val) > 0) {
+                        $assetkeysinsert .= ',tags';
+                        $tempstring = '';
+                        if ($val != "") {
+                            foreach($val as $k => $v) {
+                                $tempstring .= ',' . $v;
+                            }
+                            $tempstring = substr($tempstring, 1);
+                        }
+                        $assetvaluesinsert .= ',"' . $tempstring . '"';
+                        $assetupdate .= ',tags = "' . $tempstring . '"';
+                    }
                     break;
                 case 'rating':
                     $assetkeysinsert .= ',averageRating,totalVotes';
@@ -204,14 +215,15 @@ for ($start = $assetStart; $start <= $totalAssets; $start += 100) {
             $start = -100;
         }
     }
+    //sleep(10);
     if (time() - $startTime >= 298) {
         break;
     }
 }
 
-echo 'Starting Index: ' . $assetStart . '<br>';
-echo 'Assets Scanned: ' . $assetCount . '<br>';
-echo 'Scan Time: ' . (time() - $startTime) . 's';
+error_log('Starting Index: ' . $assetStart . '<br>', 0);
+error_log('Assets Scanned: ' . $assetCount . '<br>', 0);
+error_log('Scan Time: ' . (time() - $startTime) . 's', 0);
 
 mysqli_close($con);
 ?>
